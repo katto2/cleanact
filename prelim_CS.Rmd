@@ -1,0 +1,130 @@
+---
+title: "CS2013-16 qt_trend"
+author: "Kang Sung Won"
+date: '2017 4 24 '
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Preliminary analysis on 2013-16 consumer survey.
+
+1. preperation
+```{r dataload}
+#d=read.csv(file="CS2016/CS2016.txt",header=F,as.is=T)
+#save(d,file="CS2016/CS2016p.rdata")
+#load("CS2016/CS2016p.rdata")
+#vname=read.csv(file="CS2016/vlist.csv",header=T,as.is=T)
+#colnames(d)=vname$Ename
+#d2016=d
+
+#d2015=read.csv(file="CS2015/CS2015.txt",header=F,as.is=T)
+vname2015=read.csv(file="CS2015/vlist2015.csv",header=T,as.is=T)
+#colnames(d2015)=vname2015$Ename
+#save(d2015,file="CS2015/CS2015p.rdata")
+
+#d2014=read.csv(file="CS2014/CS2014.txt",header=F,as.is=T)
+#vname2014=read.csv(file="CS2014/vlist2014.csv",header=T,as.is=T)
+#colnames(d2014)=vname2014$Ename
+#save(d2014,file="CS2014/CS2014p.rdata")
+
+#d2013=read.csv(file="CS2013/CS2013.txt",header=F,as.is=T)
+#vname2013=read.csv(file="CS2013/vlist2013.csv",header=T,as.is=T)
+#colnames(d2013)=vname2013$Ename
+#save(d2013,file="CS2013/CS2013p.rdata")
+#colnames(d2014)[2]="quarter"
+#colnames(d2013)[2]="quarter"
+#save(d2014,file="CS2014/CS2014p.rdata")
+#save(d2013,file="CS2013/CS2013p.rdata")
+load("dCSp.rdata")
+#dCS=rbind(d2016,d2015,d2014,d2013)
+#save(dCS,file="dCSp.rdata")
+
+```
+
+2. calculate Average propensity of consumption. Each expenditure item.
+
+Expenditure items are as follows.
+```{r Expeitem}
+vname2015[134:258,]
+```
+
+We get Eshare = Expenditure item of Econ/Econ
+
+
+```{r eshar, echo=FALSE}
+#plot(pressure)
+Eshare=dCS[,135:246]/dCS[,135]
+Eshare=cbind(dCS,Eshare)
+colnames(Eshare)[260:371]=paste("R",colnames(Eshare[,260:371]),sep="_")
+```
+
+Then we obtain quater mean of APC.
+```{r dplyrload}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+First, we look on BandB. The BandB expenditure share in consumption in 2016 fourth quarter was consistent with those of previous 3 years. The 'hotel' expenditure share was actually highest in 2016.  
+```{r apc}
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,102:104) %>% filter(quarter==44)
+```
+Second, we look on Food expenditure. We found 4 items had loweset 4th quarter consumption expenditure share in 2016 in 2013-16: Raw fish (R_EF_fish_raw), raw grain (R_EF_grain_raw), source (R_EF_source), tea (R_EF_tea). Among them, the raw fish might have affected by clean act. But the 2016 4th quarter raw fish consumption expenditure ratio is in line with previous observations. If we check the mean deviation, we can see that the 2016 fourth quarter drop of raw fish share only represents the low annual average. 
+```{r apc2food}
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,4:25)%>% filter(quarter==44)
+
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,4:25) %>% filter(quarter==44)%>%gather(Vname,Value,-(1:2)) %>% ungroup() %>% group_by(Vname) %>% summarize_at(-(1:2),which.min) %>%filter(Value==4)
+
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,4:25) %>% filter(quarter==44)%>%select(year, quarter, R_EF_fish_raw)
+
+dmean=function(x){x-mean(x)}
+
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,4:25) %>% mutate_at(-(1:2),dmean) %>% filter(quarter==44) %>% select(year, quarter, R_EF_fish_raw)
+
+#,Value,-(1:2)) %>% filter(Vname=="R_EF_ungroup() %>% group_by(Vname) %>% summarize_at(-(1:2),which.min) %>%filter(Value==4)
+
+#Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,101:103)
+```
+
+
+
+
+We can confirm that there was not much of drop in 4th quarter consumption by looking at the graph.
+```{r graph}
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,4:25,102:104) %>% gather(Vname,Value,3:27) %>%ggplot(aes(x=quarter, y=Value,color=year))+geom_point()+facet_wrap(~Vname)
+```
+
+We also check consumption share deviation from annual mean in 4th quarter from 2013 to 2016. Except for raw grain, no items showed that the 2016 4th quater consumption share was particularly lower than annual average compared in 2016. 
+```{r graph2dmean}
+
+
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,4:25,102:104) %>% mutate_at(-(1:2),dmean) %>% gather(Vname,Value,3:27) %>%ggplot(aes(x=quarter, y=Value,color=year))+geom_point()+geom_line()+facet_wrap(~Vname)
+
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,4:25,102:104) %>% mutate_at(-(1:2),dmean) %>% gather(Vname,Value,3:27) %>% filter(quarter==44) %>% ggplot(aes(x=year, y=Value))+geom_line()+geom_point()+facet_wrap(~Vname)
+```
+
+
+In fact, only 6 items had the largest 4th quater drop in consumption share compared to annual average in 2016. Among them, the drop of the value of 'eateary and hotel'(R_EBandB) and 'Taste'(R_EBT) represent the drop of the value of consumption share of eating out (R_BandB_eat) and the drop of the value of tabaco (R_EBT_taba) consumption. And the other two items are raw grain (R_EF_grain_raw) and tea (R_EF_tea). Raw_grain, tea, tabaco are not affected by 'Clean Act'. So the only items matters is the drop of consumption share of eating out in 2016.
+```{r 4qdmean2}
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,4:25,102:104) %>% mutate_at(-(1:2),dmean) %>% filter(quarter==44) %>% gather(Vname,Value,-(1:2)) %>% ungroup() %>% group_by(Vname) %>% summarize_at(-(1:2),which.min) %>%filter(Value==4)
+```
+
+Then we look into the consumption share of eatery (R_BandB_eat). It has dropped from 0.06% in 2015 to 0.03% in 2014. But if anything, the drop represents the downard trend that had already begun in 2014. 
+```{r eatery2016}
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,4:25,102:104) %>% mutate_at(-(1:2),dmean) %>% filter(quarter==44) %>% select(year,quarter,R_EBandB_eat)
+
+Eshare[,c(1:2,260:371)] %>% group_by(year,quarter) %>% summarize_all(mean) %>% select(1:2,4:25,102:104) %>% select(year,quarter,R_EBandB_eat)
+```
+
+
+How about flowery?R_EENT_flower (215) and R_EENT_flowerpetserv(217) covers flowery industry demand. Again, forth quater mean deviation was almost zero in all years. And 2016 4th quarter consumption share did not drop lower than it did in the previous 3 years. Finally, 2016 4th quarter consumption share was not at its lowest in the last 4 years.
+```{r 4qdmean}
+Eshare[,c(1:2,340,342)] %>% group_by(year, quarter) %>% summarize_all(mean) %>% mutate_at(-(1:2),dmean) %>% filter(quarter==44) %>% arrange(year) %>% gather(Vname,Value,-(1:2)) 
+
+Eshare[,c(1:2,340,342)] %>% group_by(year, quarter) %>% summarize_all(mean) %>% filter(quarter==44) %>% gather(Vname,Value,-(1:2)) 
+```
+
