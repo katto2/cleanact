@@ -31,7 +31,11 @@ Describe work progress on clean act study
 
 분석 방법: Event Study.
 	
-  1. 월별 자료를 이용해서 3개월 window moving average를 구함 => 김영란법 발표 전후에 3개월 smoothing을 살아 남는 shock이 있는지 관찰  => 가격 depression 이나 소비 depression이  있는 산업/상품 파악 (Clustering)
+  1. 월별 자료를 이용해서 3개월 window moving average를 구함 
+  
+  => 김영란법 발표 전후에 3개월 smoothing을 살아 남는 shock이 있는지 관찰  
+  
+  => 가격 depression 이나 소비 depression이  있는 산업/상품 파악 (Clustering)
 	
   2.  DID with pre-determined cluster.
 	
@@ -40,8 +44,12 @@ Describe work progress on clean act study
   4. 잠재적 포인트는 제정 15년 3월/시행이 16년 10월 
 	
   5.  분기자료 ARIMA
+  
   2016 3분기까지 자료를 이용해서 ARIMA. Specified time series model 구축
-  2016년 4분기가 추세에서 어느정도 벗어나는지 파악. 95% confidence interval 을 벗어나는 outlier 일 경우에는 shock 이 있었다고 파악.  Single Series identification would be enough, given that we don't have a lot of data points.
+  
+  2016년 4분기가 추세에서 어느정도 벗어나는지 파악. 95% confidence interval 을 벗어나는 outlier 일 경우에는 shock 이 있었다고 파악.  
+  
+  Single Series identification would be enough, given that we don't have a lot of data points.
 	
   6. Control business cycle and ship bankruptcy. 
 		
